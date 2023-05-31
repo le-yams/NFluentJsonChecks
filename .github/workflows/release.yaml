@@ -1,0 +1,78 @@
+name: Release Workflow
+
+on:
+  push:
+    branches:
+      - main
+
+permissions: write-all
+
+
+jobs:
+  
+  release-please:
+    runs-on: large
+    name: Release please
+    steps:
+      - name: Import Secrets
+        id: 'import-secrets'
+        uses: hashicorp/vault-action@v3
+        with:
+          url: https://vault.agicap.cloud
+          role: ${{ vars.VAULT_AUTH_ROLE }}
+          path: github_action_runners
+          method: jwt
+          secrets: |
+            services_v2/data/shared/github/access_token/iac token | GITHUB_API_TOKEN
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          token: ${{ steps.import-secrets.outputs.GITHUB_API_TOKEN }}
+          target-branch: main
+          config-file: .release/release-please-config.json
+          manifest-file: .release/release-please-manifest.json
+    outputs:
+      releases_created: ${{ steps.release.outputs.releases_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+      
+  publish:
+    name: Package and Publish packages
+    runs-on: large
+    needs:
+      - release-please
+    if: needs.release-please.outputs.releases_created == 'true'
+    steps:
+      - name: Trim tag to get dotnet version
+        id: 'dotnet-version'
+        run: |
+          tag=${{needs.release-please.outputs.tag_name}}
+          version=${tag#"v"}
+          echo "version=${version}" >> $GITHUB_OUTPUT 
+      - name: Package and Publish
+        id: 'package'
+        uses: AgicapTech/shared-dotnet-action-lib/package@v0.3.22
+        with:
+          vault_auth_role: ${{ vars.VAULT_AUTH_ROLE }}
+          projects_to_package: |
+            NFluentJsonChecks
+          package_version: ${{steps.dotnet-version.outputs.version}}
+          publish: true
+
+      - name: Import Secrets
+        id: 'import-secrets'
+        uses: hashicorp/vault-action@v3
+        with:
+          url: https://vault.agicap.cloud
+          role: ${{ vars.VAULT_AUTH_ROLE }}
+          path: github_action_runners
+          method: jwt
+          secrets: |
+            services_v2/data/shared/github/access_token/iac token | GITHUB_API_TOKEN
+      
+      - name: Update release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          token: ${{ steps.import-secrets.outputs.GITHUB_API_TOKEN }}
+          tag_name: ${{needs.release-please.outputs.tag_name}}
+          files: |
+            ${{steps.package.outputs.packages_folder}}/NFluentJsonChecks.${{steps.dotnet-version.outputs.version}}.nupkg

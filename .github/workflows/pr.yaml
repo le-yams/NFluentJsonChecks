@@ -1,0 +1,47 @@
+
+name: Pull Request Validation
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+
+permissions: write-all
+
+env:
+  DOTNET_VERSION: '8.0'
+  DOTNET_ARTIFACT_NAME: 'dotnet_published_projects'
+  
+  
+jobs: 
+
+  build:
+    runs-on: large
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        uses: AgicapTech/shared-dotnet-action-lib/build@v0.3.22
+        with:
+          vault_auth_role: ${{ vars.VAULT_AUTH_ROLE }}
+          dotnet_version: ${{ env.DOTNET_VERSION }}
+          artifact_name: ${{ env.DOTNET_ARTIFACT_NAME }}
+          projects_to_publish: |
+            NFluentJsonChecks
+            NFluentJsonChecks.Tests
+
+  test:
+    runs-on: large
+    needs: 
+      - build
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test
+        uses: AgicapTech/shared-dotnet-action-lib/test@v0.3.22
+        with:
+          dotnet_version: ${{ env.DOTNET_VERSION }}
+          artifact_name: ${{ env.DOTNET_ARTIFACT_NAME }}
+          test_report_name: dotnet_test_results
+          projects_to_test: |
+            NFluentJsonChecks.Tests/NFluentJsonChecks.Tests.dll
