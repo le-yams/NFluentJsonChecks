@@ -14,7 +14,7 @@ Check.That(jsonElement2).HasStringValue("foo");
 Check.That(jsonElement3).HasIntValue(42);
 Check.That(jsonElement4).HasBoolValue(true);
 Check.That(jsonElement5).HasTrueValue();
-Check.That(jsonElement6).HasFalsValue();
+Check.That(jsonElement6).HasFalseValue();
 ```
 
 
