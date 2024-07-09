@@ -10,4 +10,8 @@
       <PackageReference Include="NFluent" Version="3.0.3" />
     </ItemGroup>
 
+    <ItemGroup>
+        <None Include="../README.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
+
 </Project>
