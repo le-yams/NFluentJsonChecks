@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.0 (2024-07-09)
+
+
+### Features
+
+* json checks ([aee4b4f](https://github.com/le-yams/NFluentJsonChecks/commit/aee4b4f62142fc887507a15ac3d93bf06030a2d7))
+
 ## [1.1.0](https://github.com/AgicapTech/shared-dotnet-nfluent-jsonchecks-lib/compare/v1.0.0...v1.1.0) (2024-06-21)
 
 
