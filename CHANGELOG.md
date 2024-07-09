@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/le-yams/NFluentJsonChecks/compare/v1.0.0...v1.0.1) (2024-07-09)
+
+
+### Docs
+
+* include README in package ([92a88d2](https://github.com/le-yams/NFluentJsonChecks/commit/92a88d2a1c5db849bad62599d0ff8b0db2317f45))
+
 ## 1.0.0 (2024-07-09)
 
 
